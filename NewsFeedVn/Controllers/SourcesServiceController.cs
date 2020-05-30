@@ -67,7 +67,7 @@ namespace NewsFeedVn.Controllers
                 }
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return Ok();
         }
 
         // POST: api/SourcesService
