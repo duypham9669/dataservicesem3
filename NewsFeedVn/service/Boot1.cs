@@ -32,19 +32,19 @@ namespace NewsFeedVn.service
                 Debug.WriteLine("start get api");
                 try
                 {
-                    List<Source> sources = db.Sources.ToList();
+                    List<Source> sources = db.Sources
+                    .SqlQuery("Select * from Sources where status =1;")
+                    .ToList();
                     for (int i = 0; i < sources.Count; i++)
                     {
-                        Debug.WriteLine(sources[i].Status);
-                        if (sources[i].Status.ToString().Equals("ACTIVE"))
-                        {
-                            Debug.WriteLine("url active");
                             var web = new HtmlAgilityPack.HtmlWeb();
                             var document = web.Load(sources[i].Domain + sources[i].Path);
                             var page = document.DocumentNode;
 
                             foreach (var item in page.QuerySelectorAll(sources[i].LinkSelector))
                             {
+                                try
+                                {
                                 var url = item.GetAttributeValue("href", "");
                                 Debug.WriteLine(url);
                                 //Id,CategoryID,SourceId,Title,Content,Status,Url,CreatedAt,EditedAt,DeletedAt
@@ -52,21 +52,51 @@ namespace NewsFeedVn.service
                                 {
                                     CreatedAt = DateTime.Now,
                                     SourceId = sources[i].Id,
-                                    CategoryID = 1,
+                                    CategoryID = sources[i].CategoryID ?? default(int),
                                     Url = url,
                                     Status = ArticleStatus.DEACTIVE
                                 };
                                 db.Articles.Add(article);
                                 db.SaveChanges();
                             }
+                            catch(Exception ex)
+                            {
+                                Debug.WriteLine(ex);
+                            }
+                                
+                            }
                         }
-                    };
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine(ex.Message);
                 }
             });
+        }
+        public List<String> ReviewUrl(Source source)
+        {
+            var web = new HtmlAgilityPack.HtmlWeb();
+            var document = web.Load(source.Domain + source.Path);
+            var page = document.DocumentNode;
+            List<String> ListUrl = new List<string>();
+            foreach (var item in page.QuerySelectorAll(source.LinkSelector))
+            {
+                try
+                {
+                    var url = item.GetAttributeValue("href", "");
+                    Debug.WriteLine(url);
+                   if (url!=null && url != "")
+                    {
+                        ListUrl.Add(url);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex);
+                }
+
+            }
+            return ListUrl;
         }
         public Article ReviewData(Source source)
         {
@@ -90,7 +120,8 @@ namespace NewsFeedVn.service
                     //List<string> removalTest = new ArrayList
                     
                     
-                      var nodes  = page2.QuerySelector(source.RemovalSelector);
+                    var nodes  = page2.QuerySelector(source.RemovalSelector);
+
                     String descriptionSelector = page2.QuerySelector(source.DescriptionSelector).InnerText;
                     if (title != null && title != "" &&
                         content != null && content != "")

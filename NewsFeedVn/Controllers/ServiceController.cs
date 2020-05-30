@@ -63,5 +63,20 @@ namespace NewsFeedVn.Controllers
                 return Exception(ex.Message);
             }
         }
+        [Route("api/Service/reviewurl")]
+        [HttpPost]
+        public IHttpActionResult RevirewUrl(Source source)
+        {
+            Boot1 bot1_serrvice = new Boot1();
+            try
+            {
+                List<String>result = bot1_serrvice.ReviewUrl(source);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Exception(ex.Message);
+            }
+        }
     }
 }
