@@ -105,9 +105,8 @@ namespace NewsFeedVn.service
             var document = web.Load(source.Domain + source.Path);
             var page = document.DocumentNode;
             Article article = new Article();
-            foreach (var item in page.QuerySelectorAll(source.LinkSelector))
-            {
-                var url = item.GetAttributeValue("href", "");
+            var item = page.QuerySelector(source.LinkSelector);
+               var url = item.GetAttributeValue("href", "");
                 Debug.WriteLine(url);
                 var document2 = web.Load(url);
                 var page2 = document2.DocumentNode;
@@ -116,18 +115,19 @@ namespace NewsFeedVn.service
                 {
                     String title = page2.QuerySelector(source.TitleSelector).InnerText;
                     String content = page2.QuerySelector(source.ContentSelector).InnerHtml;
-
-                    //List<string> removalTest = new ArrayList
-                    
-                    
-                    var nodes  = page2.QuerySelector(source.RemovalSelector);
-
-                    String descriptionSelector = page2.QuerySelector(source.DescriptionSelector).InnerText;
+                var nodes = page2.QuerySelector(source.ContentSelector);
+                var removedNode = nodes.QuerySelectorAll(source.RemovalSelector).ToList();
+                foreach (var node in removedNode)
+                {
+                    node.Remove();
+                }
+                Debug.WriteLine("node: " + nodes.InnerHtml);
+                String descriptionSelector = page2.QuerySelector(source.DescriptionSelector).InnerText;
                     if (title != null && title != "" &&
                         content != null && content != "")
                     {
-                        Debug.WriteLine(title);
-                        Debug.WriteLine(content);
+                        //Debug.WriteLine(title);
+                        //Debug.WriteLine(content);
                         article.Title = title;
                         article.Content = content;
                         article.EditedAt = DateTime.Now;
@@ -140,8 +140,9 @@ namespace NewsFeedVn.service
                 {
                     Debug.WriteLine("Can't not get detail data from ArtiURL");
                     Debug.WriteLine(ex.Message);
+                    return null;
                 }
-            }
+            
             return null;
         }
     }

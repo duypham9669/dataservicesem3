@@ -19,5 +19,10 @@ namespace NewsFeedVn
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
+
+        public void ProcessRequest(HttpContext context)
+        {
+            context.Response.AddHeader("Access-Control-Allow-Origin", "*");
+        }
     }
 }
