@@ -16,7 +16,6 @@ namespace NewsFeedVn.service
     public class Boot1 : IJob
     {
         private ApplicationDbContext db = new ApplicationDbContext();
-
         public Task Execute(IJobExecutionContext context)
         {
             var task = Task.Run(() =>
@@ -32,9 +31,15 @@ namespace NewsFeedVn.service
                 Debug.WriteLine("start get api");
                 try
                 {
+                    DateTime date_now = DateTime.Now;
+                    List<Article> articles = db.Articles
+                            .SqlQuery("Select * from Articles where CreatedAt > " + date_now.AddDays(-4).ToString("yyyy/MM/dd"))
+                            .ToList<Article>();
+
                     List<Source> sources = db.Sources
-                    .SqlQuery("Select * from Sources where status =1;")
+                    .SqlQuery("Select * from Sources where status = 1")
                     .ToList();
+
                     for (int i = 0; i < sources.Count; i++)
                     {
                             var web = new HtmlAgilityPack.HtmlWeb();
@@ -45,33 +50,51 @@ namespace NewsFeedVn.service
                             {
                                 try
                                 {
-                                var url = item.GetAttributeValue("href", "");
-                                Debug.WriteLine(url);
-                                //Id,CategoryID,SourceId,Title,Content,Status,Url,CreatedAt,EditedAt,DeletedAt
-                                Article article = new Article()
+                                var Url = item.GetAttributeValue("href", "");
+                                //check existed url -> not add to articles
+                                if (CheckUrl(Url, articles))
                                 {
-                                    CreatedAt = DateTime.Now,
-                                    SourceId = sources[i].Id,
-                                    CategoryID = sources[i].CategoryID ?? default(int),
-                                    Url = url,
-                                    Status = ArticleStatus.DEACTIVE
-                                };
-                                db.Articles.Add(article);
-                                db.SaveChanges();
+                                    Article article = new Article()
+                                    {
+                                        CreatedAt = DateTime.Now,
+                                        SourceId = sources[i].Id,
+                                        CategoryID = sources[i].CategoryID ?? default(int),
+                                        Url = Url,
+                                        Status = ArticleStatus.DEACTIVE
+                                    };
+                                    db.Articles.Add(article);
+                                    db.SaveChanges();
+                                }
+                                else
+                                {
+                                    Debug.WriteLine("Url existed: "+Url);
+                                }
+                                
                             }
                             catch(Exception ex)
                             {
                                 Debug.WriteLine(ex);
                             }
                                 
-                            }
                         }
+                    }
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine(ex.Message);
                 }
             });
+        }
+        private Boolean CheckUrl(String Url, List<Article> ListArticles )
+        {
+            foreach( Article article in ListArticles)
+            {
+                if (article.Url.Equals(Url))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
         public List<String> ReviewUrl(Source source)
         {

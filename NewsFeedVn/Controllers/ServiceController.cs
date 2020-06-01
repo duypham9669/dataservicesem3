@@ -1,4 +1,5 @@
-﻿using NewsFeedVn.Models;
+﻿using NewsFeedVn.model_custom;
+using NewsFeedVn.Models;
 using NewsFeedVn.service;
 using System;
 using System.Collections.Generic;
@@ -16,10 +17,10 @@ namespace NewsFeedVn.Controllers
         [HttpGet]
         public IHttpActionResult StartDataDetail()
         {
-            Boot2 bot2_serrvice = new Boot2();
+            Boot2 bot2_service = new Boot2();
             try
             {
-                bot2_serrvice.GetDataDetail();
+                bot2_service.GetDataDetail();
                 return Ok();
             }
             catch (Exception ex)
@@ -37,10 +38,10 @@ namespace NewsFeedVn.Controllers
         [HttpGet]
         public IHttpActionResult StartGetUrl()
         {
-            Boot1 bot1_serrvice = new Boot1();
+            Boot1 bot1_service = new Boot1();
             try
             {
-                bot1_serrvice.getData();
+                bot1_service.getData();
                 return Ok();
             }
             catch (Exception ex)
@@ -67,10 +68,55 @@ namespace NewsFeedVn.Controllers
         [HttpPost]
         public IHttpActionResult RevirewUrl(Source source)
         {
-            Boot1 bot1_serrvice = new Boot1();
+            Boot1 bot1_service = new Boot1();
             try
             {
-                List<String>result = bot1_serrvice.ReviewUrl(source);
+                List<String>result = bot1_service.ReviewUrl(source);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Exception(ex.Message);
+            }
+        }
+        [Route("api/Service/GetArticlesBySourceId/{id}")]
+        [HttpGet]
+        public IHttpActionResult GetArticlesBySourceId(int id)
+        {
+            DataService Service = new DataService();
+            try
+            {
+                List<Article> result = Service.GetArticlesBySourceId(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Exception(ex.Message);
+            }
+        }
+        [Route("api/Service/GetArticlesByCategoryId/{id}")]
+        [HttpGet]
+        public IHttpActionResult GetArticlesByCategoryId(int id)
+        {
+            DataService Service = new DataService();
+            try
+            {
+                List<Article> result = Service.GetArticlesByCategoryId(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Exception(ex.Message);
+            }
+        }
+        [Route("api/Service/GetArticlesByCategory")]
+        [HttpGet]
+        public IHttpActionResult GetArticlesByCategory()
+        {
+            DataService Service = new DataService();
+            try
+            {
+                List<CategoryAndArticles> result = Service.GetArticlesByCategory();
                 return Ok(result);
             }
             catch (Exception ex)

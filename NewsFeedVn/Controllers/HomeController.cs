@@ -14,8 +14,8 @@ namespace NewsFeedVn.Controllers
     {
         public ActionResult Index()
         {
-            //Runbot1();
-            //RunBot2()
+            Runbot1();
+            RunBot2();
             return View();
         }
         private static async Task Runbot1()
@@ -28,9 +28,9 @@ namespace NewsFeedVn.Controllers
                   (s =>
                   //config run with 1 time/day
                   //s.WithIntervalInHours(24)
-                     s.WithIntervalInSeconds(10)
+                     s.WithIntervalInHours(24)
                     .OnEveryDay()
-                    .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(0, 0))
+                    .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(01, 0))
                   )
                 .Build();
             scheduler.ScheduleJob(job, trigger);
@@ -43,9 +43,9 @@ namespace NewsFeedVn.Controllers
             ITrigger trigger = TriggerBuilder.Create()
                 .WithDailyTimeIntervalSchedule
                   (s =>
-                     s.WithIntervalInSeconds(60)
+                     s.WithIntervalInHours(24)
                     .OnEveryDay()
-                    .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(0, 0))
+                    .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(3, 0))
                   )
                 .Build();
             scheduler.ScheduleJob(job, trigger);
