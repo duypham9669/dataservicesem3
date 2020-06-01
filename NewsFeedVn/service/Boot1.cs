@@ -33,7 +33,7 @@ namespace NewsFeedVn.service
                 {
                     DateTime date_now = DateTime.Now;
                     List<Article> articles = db.Articles
-                            .SqlQuery("Select * from Articles where CreatedAt > " + date_now.AddDays(-4).ToString("yyyy/MM/dd"))
+                            .SqlQuery("Select * from Articles where CreatedAt > '" + date_now.AddDays(-4).ToString("yyyy/MM/dd")+" '")
                             .ToList<Article>();
 
                     List<Source> sources = db.Sources
@@ -60,7 +60,7 @@ namespace NewsFeedVn.service
                                         SourceId = sources[i].Id,
                                         CategoryID = sources[i].CategoryID ?? default(int),
                                         Url = Url,
-                                        Status = ArticleStatus.DEACTIVE
+                                        Status = ArticleStatus.INITIAL
                                     };
                                     db.Articles.Add(article);
                                     db.SaveChanges();

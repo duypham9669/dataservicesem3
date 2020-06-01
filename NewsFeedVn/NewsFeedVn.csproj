@@ -233,6 +233,7 @@
     <Compile Include="Models\Subscriber.cs" />
     <Compile Include="Models\UrlTable.cs" />
     <Compile Include="model_custom\CategoryAndArticles.cs" />
+    <Compile Include="model_custom\ReportBoot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="service\Boot1.cs" />
     <Compile Include="service\Boot2.cs" />

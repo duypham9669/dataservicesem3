@@ -33,10 +33,10 @@ namespace NewsFeedVn.service
             try
             {
                 DateTime date_now = DateTime.Now;
-                Debug.WriteLine("Get data from" + date_now.AddDays(-2).ToString("yyyy/MM/dd"));
+                Debug.WriteLine("Get data from" + date_now.AddDays(-1).ToString("yyyy/MM/dd"));
 
                 List<Article> articles = db.Articles
-                    .SqlQuery("Select * from Articles where CreatedAt > " + date_now.AddDays(-2).ToString("yyyy/MM/dd"))
+                    .SqlQuery("Select * from Articles where CreatedAt >' " + date_now.AddDays(-2).ToString("yyyy/MM/dd")+" '")
                     .ToList<Article>();
 
                 //List<Article> articles = db.Articles.ToList();
@@ -44,7 +44,7 @@ namespace NewsFeedVn.service
                 for (int i = 0; i < articles.Count; i++)
                 {
                     Debug.WriteLine(articles[i].Status);
-                    if (articles[i].Status.ToString().Equals("DEACTIVE"))
+                    if (articles[i].Status.ToString().Equals("INITIAL"))
                     {
                         var web = new HtmlAgilityPack.HtmlWeb();
                         var document = web.Load(articles[i].Url);

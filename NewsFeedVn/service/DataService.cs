@@ -3,6 +3,7 @@ using NewsFeedVn.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 
@@ -49,5 +50,52 @@ namespace NewsFeedVn.service
             }
             return result;
         }
+        public ReportBoot ReportBoot(String Start, String End)
+        {
+            CultureInfo provider = CultureInfo.InvariantCulture;
+            DateTime StartDate = DateTime.ParseExact(Start,"yyyy-MM-dd", null);
+            DateTime EndDate = DateTime.ParseExact(End, "yyyy-MM-dd", null);
+
+            int S = db.Articles.Where(o => o.CreatedAt >= StartDate).Count();
+            int E = db.Articles.Where(o => o.CreatedAt > EndDate).Count();
+            List<Article> Success= db.Articles
+                .SqlQuery("select * from Articles where CreatedAt >=' "+Start+" '")
+                .ToList();
+            //List<Article> SuccessNotYet = db.Articles
+            //    .SqlQuery("select * from Articles where CreatedAt >= " + Start + " and status = 1")
+            //    .ToList();
+
+            int Ok = 0;
+            int NotYet = 0;
+            int Error = 0;
+            foreach(Article Ar in Success)
+            {
+                DateTime Artime = (DateTime)Ar.EditedAt;
+                if ((Ar.Status.ToString().Equals("ACTIVE"))&&(Ar.EditedAt!=null)&&(DateTime.Compare(Artime, EndDate)<0))
+                {
+                    Ok++;
+                }
+                if ((Ar.Status.ToString().Equals("INITIAL")) && (Ar.EditedAt != null) && (DateTime.Compare(Artime, EndDate) < 0))
+                {
+                    NotYet++;
+                }
+                if((Ar.Status.ToString().Equals("DEACTIVE")) && (Ar.EditedAt != null) && (DateTime.Compare(Artime, EndDate) < 0))
+                {
+                    Error++;
+                }
+            }
+            Debug.WriteLine("total: " +(S-E));
+            ReportBoot result = new ReportBoot()
+            {
+                TotalUrl = S - E,
+                Success = Ok,
+                Error = Error,
+                NotYet = NotYet,          
+
+            };
+            return result;
+
+        }
+
     }
 }

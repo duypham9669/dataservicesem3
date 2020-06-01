@@ -124,5 +124,20 @@ namespace NewsFeedVn.Controllers
                 return Exception(ex.Message);
             }
         }
+        [Route("api/Service/ReportBoot/{Start}/{End}")]
+        [HttpGet]
+        public IHttpActionResult ReportBoot(String Start, String End)
+        {
+            DataService Service = new DataService();
+            try
+            {
+                ReportBoot result = Service.ReportBoot(Start,End);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Exception(ex.Message);
+            }
+        }
     }
 }
