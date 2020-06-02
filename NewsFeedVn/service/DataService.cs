@@ -94,7 +94,23 @@ namespace NewsFeedVn.service
 
             };
             return result;
+        }
+        public ReportBoot DailyReport()
+        {
+            String DateNow = DateTime.Now.ToString("dd/MM/yyyy");
+            int T = db.Articles.SqlQuery("select * from Articles where CreatedAt >= '"+DateNow+"'").Count();
+            int S = db.Articles.SqlQuery("select * from Articles where CreatedAt >= '" + DateNow + "' and status=2").Count();
+            int E = db.Articles.SqlQuery("select * from Articles where CreatedAt >= '" + DateNow + "' and status=0").Count();
+            int N = db.Articles.SqlQuery("select * from Articles where CreatedAt >= '" + DateNow + "' and status=1").Count();
+            ReportBoot result = new ReportBoot()
+            {
+                TotalUrl = T,
+                Success = S,
+                Error = E,
+                NotYet = N,
 
+            };
+            return result;
         }
 
     }

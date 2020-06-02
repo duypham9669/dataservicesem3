@@ -27,7 +27,6 @@ namespace NewsFeedVn.Controllers
             {
                 return Exception(ex.Message);
             }
-
         }
 
         private IHttpActionResult Exception(string message)
@@ -132,6 +131,21 @@ namespace NewsFeedVn.Controllers
             try
             {
                 ReportBoot result = Service.ReportBoot(Start,End);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Exception(ex.Message);
+            }
+        }
+        [Route("api/Service/DailyReport")]
+        [HttpGet]
+        public IHttpActionResult DailyReport()
+        {
+            DataService Service = new DataService();
+            try
+            {
+                ReportBoot result = Service.DailyReport();
                 return Ok(result);
             }
             catch (Exception ex)
