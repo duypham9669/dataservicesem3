@@ -54,8 +54,8 @@ namespace NewsFeedVn.service
                         Debug.WriteLine(source.TitleSelector);
                         try
                         {
-                            String title = page.QuerySelector(source.TitleSelector).InnerText;
-                            String content = page.QuerySelector(source.ContentSelector).InnerText;
+                            String title = page.QuerySelector(source.TitleSelector).InnerHtml;
+                            String content = page.QuerySelector(source.ContentSelector).InnerHtml;
                             if (title != null && title != "" &&
                                 content != null && content != "")
                             {

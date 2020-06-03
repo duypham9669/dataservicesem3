@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -67,7 +68,7 @@ namespace NewsFeedVn.Controllers
                 }
             }
 
-            return Ok();
+            return Ok(source);
         }
 
         // POST: api/SourcesService
@@ -78,11 +79,22 @@ namespace NewsFeedVn.Controllers
             {
                 return BadRequest(ModelState);
             }
+            try
+            {
+                db.Sources.Add(source);
+                            db.SaveChanges();
+            }catch(Exception ex)
+            {
+                InternalServerError(ex.Message);
+            }
+            Category Ca = db.Categories.Find(source.CategoryID);
+            source.Category = Ca;
+            return Ok(source);
+        }
 
-            db.Sources.Add(source);
-            db.SaveChanges();
-
-            return CreatedAtRoute("DefaultApi", new { id = source.Id }, source);
+        private void InternalServerError(string message)
+        {
+            throw new NotImplementedException();
         }
 
         // DELETE: api/SourcesService/5

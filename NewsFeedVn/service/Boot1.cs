@@ -136,8 +136,22 @@ namespace NewsFeedVn.service
                 //Id,CategoryID,SourceId,Title,Content,Status,Url,CreatedAt,EditedAt,DeletedAt
                 try
                 {
-                    String title = page2.QuerySelector(source.TitleSelector).InnerText;
+                
+                    String title = page2.QuerySelector(source.TitleSelector).InnerHtml;
                     String content = page2.QuerySelector(source.ContentSelector).InnerHtml;
+                    String descriptionSelector = page2.QuerySelector(source.DescriptionSelector).InnerHtml;
+                if (title == null)
+                {
+                    Debug.WriteLine("title null");
+                }
+                if (content == null)
+                {
+                    Debug.WriteLine("content null");
+                }
+                if (content == null)
+                {
+                    Debug.WriteLine("content null");
+                }
                 var nodes = page2.QuerySelector(source.ContentSelector);
                 var removedNode = nodes.QuerySelectorAll(source.RemovalSelector).ToList();
                 foreach (var node in removedNode)
@@ -145,9 +159,11 @@ namespace NewsFeedVn.service
                     node.Remove();
                 }
                 Debug.WriteLine("node: " + nodes.InnerHtml);
-                String descriptionSelector = page2.QuerySelector(source.DescriptionSelector).InnerText;
+                
                     if (title != null && title != "" &&
-                        content != null && content != "")
+                        content != null && content != ""&&
+                        descriptionSelector!=null
+                        )
                     {
                         //Debug.WriteLine(title);
                         //Debug.WriteLine(content);

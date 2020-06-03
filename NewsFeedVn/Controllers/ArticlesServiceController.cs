@@ -79,7 +79,6 @@ namespace NewsFeedVn.Controllers
             {
                 return BadRequest(ModelState);
             }
-
             db.Articles.Add(article);
             db.SaveChanges();
 
