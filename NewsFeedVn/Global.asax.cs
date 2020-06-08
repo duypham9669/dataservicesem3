@@ -22,27 +22,29 @@ namespace NewsFeedVn
             GlobalConfiguration.Configure(WebApiConfig.Register);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-            Runbot1();
+            Runbot1Async();
             RunBot2();
         }
-        private static async Task Runbot1()
+
+        public static async void Runbot1Async()
         {
             IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
             scheduler.Start();
+
             IJobDetail job = JobBuilder.Create<Boot1>().Build();
+
             ITrigger trigger = TriggerBuilder.Create()
-                .WithDailyTimeIntervalSchedule
-                  (s =>
-                  //config run with 1 time/day
-                  //s.WithIntervalInHours(24)
-                     s.WithIntervalInHours(24)
-                    .OnEveryDay()
-                    .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(01, 0))
-                  )
-                .Build();
+               .WithDailyTimeIntervalSchedule
+                 (s =>
+                    s.WithIntervalInHours(8)
+                   .OnEveryDay()
+                   .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(1, 0))
+                 )
+               .Build();
+
             scheduler.ScheduleJob(job, trigger);
         }
-        private static async Task RunBot2()
+        public static async void RunBot2()
         {
             IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
             scheduler.Start();
@@ -50,7 +52,7 @@ namespace NewsFeedVn
             ITrigger trigger = TriggerBuilder.Create()
                 .WithDailyTimeIntervalSchedule
                   (s =>
-                     s.WithIntervalInHours(24)
+                     s.WithIntervalInHours(8)
                     .OnEveryDay()
                     .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(03, 0))
                   )

@@ -97,11 +97,15 @@ namespace NewsFeedVn.service
         }
         public ReportBoot DailyReport()
         {
-            String DateNow = DateTime.Now.ToString("dd/MM/yyyy");
+            Debug.WriteLine("===Start DailyReport===");
+            String DateNow = DateTime.Now.ToString("yyyy/MM/dd");
+            Debug.WriteLine("report at: "+ DateNow);
             int T = db.Articles.SqlQuery("select * from Articles where CreatedAt >= '"+DateNow+"'").Count();
+            Debug.WriteLine("sql: " +T);
             int S = db.Articles.SqlQuery("select * from Articles where CreatedAt >= '" + DateNow + "' and status=2").Count();
             int E = db.Articles.SqlQuery("select * from Articles where CreatedAt >= '" + DateNow + "' and status=0").Count();
             int N = db.Articles.SqlQuery("select * from Articles where CreatedAt >= '" + DateNow + "' and status=1").Count();
+
             ReportBoot result = new ReportBoot()
             {
                 TotalUrl = T,

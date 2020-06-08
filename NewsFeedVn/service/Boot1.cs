@@ -10,6 +10,8 @@ using Fizzler.Systems.HtmlAgilityPack;
 using static NewsFeedVn.Models.Source;
 using static NewsFeedVn.Models.Article;
 using System.Collections;
+using System.Text.RegularExpressions;
+using System.Text;
 
 namespace NewsFeedVn.service
 {
@@ -117,7 +119,6 @@ namespace NewsFeedVn.service
                 {
                     Debug.WriteLine(ex);
                 }
-
             }
             return ListUrl;
         }
@@ -131,20 +132,45 @@ namespace NewsFeedVn.service
             var item = page.QuerySelector(source.LinkSelector);
                var url = item.GetAttributeValue("href", "");
                 Debug.WriteLine(url);
+            if (url.StartsWith("/"))
+            {
+                url = source.Domain + url;
+            }
                 var document2 = web.Load(url);
                 var page2 = document2.DocumentNode;
                 //Id,CategoryID,SourceId,Title,Content,Status,Url,CreatedAt,EditedAt,DeletedAt
                 try
                 {
-                
                     String title = page2.QuerySelector(source.TitleSelector).InnerHtml;
                     String content = page2.QuerySelector(source.ContentSelector).InnerHtml;
                     String descriptionSelector = page2.QuerySelector(source.DescriptionSelector).InnerHtml;
+                    string[] arrListStr = content.Split(new string[] { "<img" }, StringSplitOptions.None);
+                string imgLink = "";
+                for (int j = 1; j < arrListStr.Length; j++)
+                {
+                    string[] arrListStr2 = arrListStr[j].Split(new string[] { ">" }, StringSplitOptions.None);
+                    String arrImg = arrListStr2[0];
+                    String arrImg2 = arrListStr2[0].Substring(arrListStr2[0].IndexOf("data-src") + 5, arrImg.Length - arrListStr2[0].IndexOf("data-src") - 5);
+                    arrListStr2[0] = "<br";
+                    arrListStr[j] = "<img " + arrImg2 + ConvertStringArrayToStringImg(arrListStr2);
+                    if (j == 1)
+                    {
+                        string[] src = arrImg2.Split(new string[] { "\"" }, StringSplitOptions.None);
+                        imgLink = src[1];
+                    }
+                }
+
+                //string[] arrListStr2 = arrListStr[1].Split(new string[] { ">" }, StringSplitOptions.None);
+                //String arrImg = arrListStr2[0];
+                //String arrImg2 = arrListStr2[0].Substring(arrListStr2[0].IndexOf("data-src") + 5, arrImg.Length - arrListStr2[0].IndexOf("data-src") - 5);
+                //arrListStr[1] = "<img " + arrImg2;
+                String ContentResult = ConvertStringArrayToString(arrListStr);
+                Debug.WriteLine("ContenResult: "+ContentResult);
                 if (title == null)
                 {
                     Debug.WriteLine("title null");
                 }
-                if (content == null)
+                if (ContentResult == null)
                 {
                     Debug.WriteLine("content null");
                 }
@@ -157,19 +183,16 @@ namespace NewsFeedVn.service
                 foreach (var node in removedNode)
                 {
                     node.Remove();
-                }
-                Debug.WriteLine("node: " + nodes.InnerHtml);
-                
+                }                
                     if (title != null && title != "" &&
                         content != null && content != ""&&
                         descriptionSelector!=null
                         )
                     {
-                        //Debug.WriteLine(title);
-                        //Debug.WriteLine(content);
                         article.Title = title;
-                        article.Content = content;
+                        article.Content = ContentResult;
                         article.EditedAt = DateTime.Now;
+                        article.Img = imgLink;
                         article.Description = descriptionSelector;
                         article.Url = url;
                         }
@@ -183,6 +206,28 @@ namespace NewsFeedVn.service
                 }
             
             return null;
+        }
+        static string ConvertStringArrayToString(string[] array)
+        {
+            // Concatenate all the elements into a StringBuilder.
+            StringBuilder builder = new StringBuilder();
+            foreach (string value in array)
+            {
+                builder.Append(value);
+            }
+            return builder.ToString();
+        }
+        static string ConvertStringArrayToStringImg(string[] array)
+        {
+            // Concatenate all the elements into a StringBuilder.
+            StringBuilder builder = new StringBuilder();
+            foreach (string value in array)
+            {
+                builder.Append('>');
+                builder.Append(value);
+                
+            }
+            return builder.ToString();
         }
     }
 }   

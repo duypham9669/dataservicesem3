@@ -8,6 +8,7 @@ using System.Data.Entity.Infrastructure;
 using System.Diagnostics;
 using System.EnterpriseServices.Internal;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using static NewsFeedVn.Models.Article;
@@ -51,18 +52,40 @@ namespace NewsFeedVn.service
                         var page = document.DocumentNode;
 
                         Source source = db.Sources.Find(articles[i].SourceId);
-                        Debug.WriteLine(source.TitleSelector);
+                        //Debug.WriteLine(source.TitleSelector);
                         try
                         {
                             String title = page.QuerySelector(source.TitleSelector).InnerHtml;
                             String content = page.QuerySelector(source.ContentSelector).InnerHtml;
+                            String description = page.QuerySelector(source.DescriptionSelector).InnerHtml;
+
+                            string[] arrListStr = content.Split(new string[] { "<img" }, StringSplitOptions.None);
+                            string imgLink = "";
+                            for (int j = 1; j < arrListStr.Length; j++)
+                            {
+                                string[] arrListStr2 = arrListStr[j].Split(new string[] { ">" }, StringSplitOptions.None);
+                                String arrImg = arrListStr2[0];
+                                String arrImg2 = arrListStr2[0].Substring(arrListStr2[0].IndexOf("data-src") + 5, arrImg.Length - arrListStr2[0].IndexOf("data-src") - 5);
+                                arrListStr2[0] = "<br";
+                                arrListStr[j] = "<img " + arrImg2 + ConvertStringArrayToStringImg(arrListStr2);
+                                if (j == 1)
+                                {
+                                    imgLink = arrImg2;
+                                }
+                            }
+                            //string[] arrListStr2 = arrListStr[1].Split(new string[] { ">" }, StringSplitOptions.None);
+                            //String arrImg = arrListStr2[0];
+                            //String arrImg2 = arrListStr2[0].Substring(arrListStr2[0].IndexOf("data-src") + 5, arrImg.Length - arrListStr2[0].IndexOf("data-src") - 5);
+                            //arrListStr[1] = "<img " + arrImg2;
+                            String ContentResult = ConvertStringArrayToString(arrListStr);
+                            Debug.WriteLine("content: " + ContentResult);
                             if (title != null && title != "" &&
                                 content != null && content != "")
                             {
-                                Debug.WriteLine(title);
-                                Debug.WriteLine(content);
                                 articles[i].Title = title;
-                                articles[i].Content = content;
+                                articles[i].Description = description;
+                                articles[i].Content = ContentResult;
+                                articles[i].Img = imgLink;
                                 articles[i].Status = ArticleStatus.ACTIVE;
                                 articles[i].EditedAt = DateTime.Now;
                             }
@@ -93,6 +116,28 @@ namespace NewsFeedVn.service
             {
                 Debug.WriteLine(ex.Message);
             }
+        }
+        static string ConvertStringArrayToString(string[] array)
+        {
+            // Concatenate all the elements into a StringBuilder.
+            StringBuilder builder = new StringBuilder();
+            foreach (string value in array)
+            {
+                builder.Append(value);
+            }
+            return builder.ToString();
+        }
+        static string ConvertStringArrayToStringImg(string[] array)
+        {
+            // Concatenate all the elements into a StringBuilder.
+            StringBuilder builder = new StringBuilder();
+            foreach (string value in array)
+            {
+                builder.Append('>');
+                builder.Append(value);
+                
+            }
+            return builder.ToString();
         }
     }
 }
