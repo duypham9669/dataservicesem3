@@ -61,9 +61,6 @@ namespace NewsFeedVn.service
             List<Article> Success= db.Articles
                 .SqlQuery("select * from Articles where CreatedAt >=' "+Start+" '")
                 .ToList();
-            //List<Article> SuccessNotYet = db.Articles
-            //    .SqlQuery("select * from Articles where CreatedAt >= " + Start + " and status = 1")
-            //    .ToList();
 
             int Ok = 0;
             int NotYet = 0;

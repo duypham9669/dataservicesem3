@@ -70,13 +70,10 @@ namespace NewsFeedVn.service
                                 arrListStr[j] = "<img " + arrImg2 + ConvertStringArrayToStringImg(arrListStr2);
                                 if (j == 1)
                                 {
-                                    imgLink = arrImg2;
+                                    string[] src = arrImg2.Split(new string[] { "\"" }, StringSplitOptions.None);
+                                    imgLink = src[1];
                                 }
                             }
-                            //string[] arrListStr2 = arrListStr[1].Split(new string[] { ">" }, StringSplitOptions.None);
-                            //String arrImg = arrListStr2[0];
-                            //String arrImg2 = arrListStr2[0].Substring(arrListStr2[0].IndexOf("data-src") + 5, arrImg.Length - arrListStr2[0].IndexOf("data-src") - 5);
-                            //arrListStr[1] = "<img " + arrImg2;
                             String ContentResult = ConvertStringArrayToString(arrListStr);
                             Debug.WriteLine("content: " + ContentResult);
                             if (title != null && title != "" &&
