@@ -56,9 +56,10 @@ namespace NewsFeedVn.service
                                 var Url = item.GetAttributeValue("href", "");
                                 if (Url.StartsWith("/"))
                                 {
-                                    Url = Url.TrimEnd('/') + sources[i].Domain;
+                                    Url = sources[i].Domain.TrimEnd('/') + Url;
                                 }
                                 //check existing url -> not add to articles
+                                Debug.WriteLine(Url);
                                 if (CheckUrl(Url, articles))
                                 {
                                     Article article = new Article()

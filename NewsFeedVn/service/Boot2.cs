@@ -64,7 +64,6 @@ namespace NewsFeedVn.service
                             String linkImg = "";
                             if (null != imgNodes)
                             {
-                                linkImg = imgNodes[0].Attributes["src"].Value.ToString();
                                 foreach (var itemImg in imgNodes)
                                 {
                                     var imgLink = itemImg.Attributes["data-src"].Value;
@@ -72,6 +71,9 @@ namespace NewsFeedVn.service
                                     var newNode = HtmlNode.CreateNode(newImgNode);
                                     itemImg.ParentNode.ReplaceChild(newNode, itemImg);
                                 }
+                                var imgNodes2 = content.SelectNodes("//img[@src]");
+                                var test2 = content.QuerySelector("img");
+                                linkImg = test2.Attributes["src"].Value.ToString();
                             }
                             else
                             {
