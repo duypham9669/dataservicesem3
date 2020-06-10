@@ -8,6 +8,15 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
+using Fizzler.Systems.HtmlAgilityPack;
+using static NewsFeedVn.Models.Source;
+using static NewsFeedVn.Models.Article;
+using System.Collections;
+using System.Text.RegularExpressions;
+using System.Text;
+using System.Diagnostics;
+using System.Web.Http.Results;
+
 namespace NewsFeedVn.Controllers
 {
     public class ServiceController : ApiController
@@ -152,6 +161,30 @@ namespace NewsFeedVn.Controllers
             {
                 return Exception(ex.Message);
             }
+        }
+        [Route("api/Service/getImage")]
+        [HttpGet]
+        public IHttpActionResult GetImageSrc()
+        {
+            var web = new HtmlAgilityPack.HtmlWeb();
+            var document = web.Load("https://vnexpress.net/wb-kinh-te-toan-cau-nam-nay-te-nhat-gan-8-thap-ky-4112934.html");
+            var page = document.DocumentNode;
+
+            var abc = page.QuerySelector("picture>img.lazy.lazied");
+
+            var def = abc.Attributes["src"].Value;
+            Debug.WriteLine("here: " + def);
+            return Ok(def);
+            //DataService Service = new DataService();
+            //try
+            //{
+            //    ReportBoot result = Service.DailyReport();
+            //    return Ok(result);
+            //}
+            // catch (Exception ex)
+            //{
+            //    return Exception(ex.Message);
+            //}
         }
     }
 }

@@ -26,6 +26,7 @@ namespace NewsFeedVn.Models
         [Display(Name = "User ID")]
         [Required]
         public string UserID { get; set; }
+        public DateTime CreatedAt { get; set; }
         public virtual ApplicationUser User { get; set; }
     }
 }

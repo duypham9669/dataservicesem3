@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -33,6 +34,9 @@ namespace NewsFeedVn.Models
         public DateTime? CreatedAt { get; set; }
         public DateTime? EditedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
+
+        [DefaultValue(0)]
+        public int Count { get; set; }
         public enum ArticleStatus
         {
             DEACTIVE = 0, INITIAL = 1, ACTIVE = 2, DELETE = 3
