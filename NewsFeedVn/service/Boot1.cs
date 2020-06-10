@@ -13,6 +13,7 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using System.Text;
 using HtmlAgilityPack;
+using System.Net;
 
 namespace NewsFeedVn.service
 {
@@ -42,7 +43,6 @@ namespace NewsFeedVn.service
                     List<Source> sources = db.Sources
                     .SqlQuery("Select * from Sources where status = 1")
                     .ToList();
-
                     for (int i = 0; i < sources.Count; i++)
                     {
                             var web = new HtmlAgilityPack.HtmlWeb();
@@ -143,7 +143,7 @@ namespace NewsFeedVn.service
                 Debug.WriteLine(url);
             if (url.StartsWith("/"))
             {
-                url = source.Domain + url;
+                url = source.Domain.TrimEnd('/') + url;
             }
                 var document2 = web.Load(url);
                 var page2 = document2.DocumentNode;
@@ -152,60 +152,76 @@ namespace NewsFeedVn.service
                 {
                     String title = page2.QuerySelector(source.TitleSelector).InnerHtml;
                     String descriptionSelector = page2.QuerySelector(source.DescriptionSelector).InnerHtml;
-                //String content = page2.QuerySelector(source.ContentSelector).InnerHtml;
 
-                var content = page2.QuerySelector(source.ContentSelector);
-                var imgNodes = content.SelectNodes("//img[@data-src]");
-                int i = 1;
+                    var test = page2.QuerySelector(source.DescriptionSelector);
+                    var content = page2.QuerySelector(source.ContentSelector);
+
+                    var imgNodes = content.SelectNodes("//img[@data-src]");
+                String linkImg = "";
                 string imgDefault="";
-                foreach (var itemImg in imgNodes)
-                {
-                    if (i == 1)
+                if(null!= imgNodes) {
+                    linkImg = imgNodes[0].Attributes["src"].Value.ToString();
+                    foreach (var itemImg in imgNodes)
                     {
-                        imgDefault= item.Attributes["data-src"].Value;
+                        var imgLink = itemImg.Attributes["data-src"].Value;
+                        var newImgNode = $"<img src='{imgLink}'/>";
+                        var newNode = HtmlNode.CreateNode(newImgNode);
+                        itemImg.ParentNode.ReplaceChild(newNode, itemImg);
                     }
-                    var imgLink = item.Attributes["data-src"].Value;
-                    var newImgNode = $"<img src='{imgLink}'/>";
-                    var newNode = HtmlNode.CreateNode(newImgNode);
-                    item.ParentNode.ReplaceChild(newNode, item);
                 }
-                string contenResult = content.InnerHtml;
-                Console.WriteLine("conten result: "+ contenResult);
-
-                var imgNode = page2.SelectSingleNode("//img[@data-src]");
-                Console.WriteLine(imgNode.Attributes["data-src"].Value);
-                if (title == null)
+                else
                 {
-                    Debug.WriteLine("title null");
-                }
-                if (content == null)
-                {
-                    Debug.WriteLine("content null");
-                }
-                if (content == null)
-                {
-                    Debug.WriteLine("content null");
-                }
-                var nodes = page2.QuerySelector(source.ContentSelector);
-                var removedNode = nodes.QuerySelectorAll(source.RemovalSelector).ToList();
-                foreach (var node in removedNode)
-                {
-                    node.Remove();
-                }                
-                    if (title != null && title != "" &&
-                        content != null && contenResult != ""&&
-                        descriptionSelector!=null
-                        )
+                    var imgNodes2 = content.SelectNodes("//img[@src]");
+                    var test2 = content.QuerySelector("img");
+                    linkImg = test2.Attributes["src"].Value.ToString();
+                    Debug.WriteLine(" link ảnh m cần đây này: " + linkImg);
+                    foreach (var itemImg in imgNodes2)
                     {
-                        article.Title = title;
-                        article.Content = contenResult;
-                        article.EditedAt = DateTime.Now;
-                        article.Img = imgDefault;
-                        article.Description = descriptionSelector;
-                        article.Url = url;
-                        }
-                    return article;
+                        var imgLink = itemImg.Attributes["src"].Value;
+                        var newImgNode = $"<img src='{imgLink}'/>";
+                        var newNode = HtmlNode.CreateNode(newImgNode);
+                        itemImg.ParentNode.ReplaceChild(newNode, itemImg);
+                    }
                 }
+                
+                string contenResult = content.InnerHtml;
+                    //Debug.WriteLine("conten result: "+ contenResult);
+                    if (title == null)
+                    {
+                        Debug.WriteLine("title null");
+                    }
+                    if (content == null)
+                    {
+                        Debug.WriteLine("content null");
+                    }
+                    if (content == null)
+                    {
+                        Debug.WriteLine("content null");
+                    }
+                    var nodes = page2.QuerySelector(source.ContentSelector);
+                    var removedNode = nodes.QuerySelectorAll(source.RemovalSelector).ToList();
+                if (linkImg.StartsWith("/"))
+                {
+                    linkImg = source.Domain.TrimEnd('/') + linkImg;
+                }
+                foreach (var node in removedNode)
+                    {
+                        node.Remove();
+                    }                
+                        if (title != null && title != "" &&
+                            content != null && contenResult != ""&&
+                            descriptionSelector!=null
+                            )
+                        {
+                            article.Title = title;
+                            article.Content = contenResult;
+                            article.EditedAt = DateTime.Now;
+                            article.Img = linkImg;
+                            article.Description = descriptionSelector;
+                            article.Url = url;
+                            }
+                        return article;
+                    }
                 catch (Exception ex)
                 {
                     Debug.WriteLine("Can't not get detail data from ArtiURL");
@@ -237,6 +253,20 @@ namespace NewsFeedVn.service
                 
             }
             return builder.ToString();
+        }
+        public bool LinkExists(string imageUrlAddress)
+        {
+            WebRequest webRequest = WebRequest.Create(imageUrlAddress);
+            WebResponse webResponse;
+            try
+            {
+                webResponse = webRequest.GetResponse();
+            }
+            catch //If exception thrown then couldn't get response from address 
+            {
+                return false;
+            }
+            return true;
         }
     }
 }   

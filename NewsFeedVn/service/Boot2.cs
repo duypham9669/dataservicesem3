@@ -1,4 +1,5 @@
 ﻿using Fizzler.Systems.HtmlAgilityPack;
+using HtmlAgilityPack;
 using NewsFeedVn.Models;
 using Quartz;
 using System;
@@ -56,33 +57,53 @@ namespace NewsFeedVn.service
                         try
                         {
                             String title = page.QuerySelector(source.TitleSelector).InnerHtml;
-                            String content = page.QuerySelector(source.ContentSelector).InnerHtml;
                             String description = page.QuerySelector(source.DescriptionSelector).InnerHtml;
+                            var content = page.QuerySelector(source.ContentSelector);
+                            var imgNodes = content.SelectNodes("//img[@data-src]");
 
-                            string[] arrListStr = content.Split(new string[] { "<img" }, StringSplitOptions.None);
-                            string imgLink = "";
-                            for (int j = 1; j < arrListStr.Length; j++)
+                            String linkImg = "";
+                            if (null != imgNodes)
                             {
-                                string[] arrListStr2 = arrListStr[j].Split(new string[] { ">" }, StringSplitOptions.None);
-                                String arrImg = arrListStr2[0];
-                                String arrImg2 = arrListStr2[0].Substring(arrListStr2[0].IndexOf("data-src") + 5, arrImg.Length - arrListStr2[0].IndexOf("data-src") - 5);
-                                arrListStr2[0] = "<br";
-                                arrListStr[j] = "<img " + arrImg2 + ConvertStringArrayToStringImg(arrListStr2);
-                                if (j == 1)
+                                linkImg = imgNodes[0].Attributes["src"].Value.ToString();
+                                foreach (var itemImg in imgNodes)
                                 {
-                                    string[] src = arrImg2.Split(new string[] { "\"" }, StringSplitOptions.None);
-                                    imgLink = src[1];
+                                    var imgLink = itemImg.Attributes["data-src"].Value;
+                                    var newImgNode = $"<img src='{imgLink}'/>";
+                                    var newNode = HtmlNode.CreateNode(newImgNode);
+                                    itemImg.ParentNode.ReplaceChild(newNode, itemImg);
                                 }
                             }
-                            String ContentResult = ConvertStringArrayToString(arrListStr);
-                            Debug.WriteLine("content: " + ContentResult);
+                            else
+                            {
+                                var imgNodes2 = content.SelectNodes("//img[@src]");
+                                var test2 = content.QuerySelector("img");
+                                linkImg = test2.Attributes["src"].Value.ToString();
+                                Debug.WriteLine(" link ảnh m cần đây này: " + linkImg);
+                                foreach (var itemImg in imgNodes2)
+                                {
+                                    var imgLink = itemImg.Attributes["src"].Value;
+                                    var newImgNode = $"<img src='{imgLink}'/>";
+                                    var newNode = HtmlNode.CreateNode(newImgNode);
+                                    itemImg.ParentNode.ReplaceChild(newNode, itemImg);
+                                }
+                            }
+                            if (linkImg.StartsWith("/"))
+                            {
+                                linkImg = source.Domain.TrimEnd('/') + linkImg;
+                            }
+                            if (linkImg==null)
+                            {
+                                linkImg = "https://i.pinimg.com/originals/ce/5f/9b/ce5f9be1e1344c5c73c68ae534ca7c66.jpg";
+                            }
+                            string contenResult = content.InnerHtml;
+                            Debug.WriteLine("content: " + contenResult);
                             if (title != null && title != "" &&
-                                content != null && content != "")
+                                contenResult != null && contenResult != "")
                             {
                                 articles[i].Title = title;
                                 articles[i].Description = description;
-                                articles[i].Content = ContentResult;
-                                articles[i].Img = imgLink;
+                                articles[i].Content = contenResult;
+                                articles[i].Img = linkImg;
                                 articles[i].Status = ArticleStatus.ACTIVE;
                                 articles[i].EditedAt = DateTime.Now;
                             }
