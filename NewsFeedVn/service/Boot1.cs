@@ -174,7 +174,10 @@ namespace NewsFeedVn.service
                 {
                     var imgNodes2 = content.SelectNodes("//img[@src]");
                     var test2 = content.QuerySelector("img");
-                    linkImg = test2.Attributes["src"].Value.ToString();
+                    if (test2 != null)
+                    {
+                        linkImg = test2.Attributes["src"].Value.ToString();
+                    }
                     Debug.WriteLine(" link ảnh m cần đây này: " + linkImg);
                     foreach (var itemImg in imgNodes2)
                     {
